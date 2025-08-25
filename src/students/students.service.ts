@@ -32,7 +32,7 @@ export class StudentsService {
 
 
   findAll() {
-      return this.studentRepository.find({ relations: ['subjects'] });
+      return this.studentRepository.find({ relations: ['subjects'], order: { id: 'ASC'} });
   }
 
   findOne(id: number) {
