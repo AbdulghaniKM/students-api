@@ -36,14 +36,31 @@ export class StudentsService {
   }
 
   findOne(id: number) {
-    return `This action returns a #${id} student`;
+    return this.studentRepository.findOne({ where: { id }, relations: ['subjects'] });
   }
 
-  update(id: number, updateStudentDto: UpdateStudentDto) {
-    return `This action updates a #${id} student`;
-  }
+  async update(id: number, updateStudentDto: UpdateStudentDto) {
+        const student = await this.studentRepository.findOne({
+            where: { id },
+            relations: ['subjects'],
+        });
+
+        if (!student) throw new Error('Student not found');
+
+        const { subjects, ...rest } = updateStudentDto;
+        Object.assign(student, rest); // assigns name, age, etc.
+
+      if (subjects) {
+          const subjectEntities = await this.subjectRepository.find({
+              where: { id: In(subjects) }
+          });
+          student.subjects = subjectEntities;
+      }
+
+      return this.studentRepository.save(student);
+    }
 
   remove(id: number) {
-    return `This action removes a #${id} student`;
+    return this.studentRepository.delete(id);
   }
 }
